@@ -130,7 +130,11 @@ function PromiseCoerce(x) {
       var resolve, reject
       var promise = new Promise(function(res, rej) { resolve = res; reject = rej })
       thenables.set(x, promise)
-      x.then(resolve, reject)
+      try {
+        x.then(resolve, reject)
+      } catch(e) {
+        reject(e)
+      }
       return promise
     }
   } else {
