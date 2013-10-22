@@ -7,9 +7,9 @@ function Task(task) {
   if (typeof setTimeout !== 'undefined') {
     setTimeout(task, 0)
   } else if (Object.observe) {
-    var dummy = {}
-    Object.observe(dummy, task)
-    dummy.dummy = dummy
+    var dummy = {}
+    Object.observe(dummy, task)
+    dummy.dummy = dummy
   } else {
     throw "No tasks available"
   }
