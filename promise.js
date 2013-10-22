@@ -54,7 +54,7 @@ function PromiseReject(promise, r) {
 
 function PromiseQueue(tasks, x) {
   for (var i in tasks) {
-    Task(function() { tasks[i](x) }, 0)
+    Task(function() { tasks[i](x) })
   }
 }
 
