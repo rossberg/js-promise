@@ -1,4 +1,4 @@
-// For V8, run with --harmony
+// For V8, need to run with --harmony
 
 "use strict"
 
@@ -24,7 +24,7 @@ var $$onResolve = Symbol("Promise#onResolve")
 var $$onReject = Symbol("Promise#onReject")
 
 function IsPromise(x) {
-  return typeof x === 'object' && x !== null && $$status in x
+  return x && $$status in Object(x)
 }
 
 function Promise(resolver) {
@@ -58,32 +58,32 @@ function PromiseQueue(tasks, x) {
   }
 }
 
-function PromiseChain(resolve, reject, handler) {
-  return function(x) {
-    try {
-      var y = handler(x)
-      if (IsPromise(y))
-        y.when(resolve, reject)
-      else
-        resolve(y)
-    } catch(e) {
-      reject(e)
-    }
-  }
+
+// Convenience.
+
+Promise.resolved = function(x) {
+  return new this(function(resolve, reject) { resolve(x) })
 }
 
-Promise.resolve = function(x) {
-  return new Promise(function(resolve, reject) { resolve(x) })
+Promise.rejected = function(r) {
+  return new this(function(resolve, reject) { reject(r) })
 }
 
-Promise.reject = function(r) {
-  return new Promise(function(resolve, reject) { reject(r) })
+Promise.deferred = function() {  // Seems useful to expose as a method, too
+  var result = {}
+  result.promise = new this(function(resolve, reject) {
+    result.resolve = resolve
+    result.reject = reject
+  })
+  return result
 }
 
-// One level unwrapping (a.k.a. flatMap).
+
+// Simple chaining (a.k.a. flatMap).
+
 Promise.prototype.when = function(onResolve, onReject) {
   var that = this
-  return new Promise(function(resolve, reject) {
+  return new this.constructor(function(resolve, reject) {
     switch (that[$$status]) {
       case undefined:
         throw TypeError
@@ -105,8 +105,22 @@ Promise.prototype.catch = function(onReject) {
   return this.when(undefined, onReject)
 }
 
+function PromiseChain(resolve, reject, handler) {
+  return function(x) {
+    try {
+      var y = handler(x)
+      if (IsPromise(y))
+        y.when(resolve, reject)
+      else
+        resolve(y)
+    } catch(e) {
+      reject(e)
+    }
+  }
+}
 
-// Extended functionality for multi-unwrapping and coercive 'then'.
+
+// Extended functionality for multi-unwrapping chaining and coercive 'then'.
 
 Promise.prototype.then = function(onResolve, onReject) {
   return this.when(
@@ -123,21 +137,52 @@ var thenables = new WeakMap
 function PromiseCoerce(x) {
   if (IsPromise(x)) {
     return x
-  } else if (typeof x === 'object' && x !== null && 'then' in x) {
+  } else if (x && 'then' in Object(x)) {
     if (thenables.has(x)) {
       return thenables.get(x)
     } else {
-      var resolve, reject
-      var promise = new Promise(function(res, rej) { resolve = res; reject = rej })
-      thenables.set(x, promise)
+      var deferred = this.constructor.deferred()
+      thenables.set(x, deferred.promise)
       try {
-        x.then(resolve, reject)
+        x.then(deferred.resolve, deferred.reject)
       } catch(e) {
-        reject(e)
+        deferred.reject(e)
       }
-      return promise
+      return deferred.promise
     }
   } else {
     return x
   }
+}
+
+
+// Combinators.
+
+Promise.cast = function(x) {
+  return IsPromise(x) ? x : this.resolved(x)
+}
+
+Promise.all = function(values) {
+  var deferred = this.deferred()
+  var count = 0
+  for (var i in values) {
+    ++count
+    this.cast(values[i]).when(
+      function(x) { if (--count === 0) deferred.resolve(undefined) },
+      function(r) { if (count > 0) { count = 0; deferred.reject(r) } }
+    )
+  }
+  return deferred.promise
+}
+
+Promise.one = function(values) {
+  var deferred = this.deferred()
+  var done = false
+  for (var i in values) {
+    this.cast(values[i]).when(
+      function(x) { if (!done) { done = true; deferred.resolve(x) } },
+      function(r) { if (!done) { done = true; deferred.reject(r) } }
+    )
+  }
+  return deferred.promise
 }
