@@ -386,24 +386,45 @@ var test = (function() {
       }
     )
   }
+
   MyPromise.__proto__ = Promise
-  MyPromise.prototype = {
-    __proto__: Promise.prototype,
-    deferred: function() { log += "d"; return deferred() } 
+  MyPromise.deferred = function() {
+    log += "d"
+    return this.__proto__.deferred.call(this)
+  }
+
+  MyPromise.prototype.__proto__ = Promise.prototype
+  MyPromise.prototype.when = function(resolve, reject) {
+    log += "w" 
+    return this.__proto__.__proto__.when.call(this, resolve, reject)
   }
 
   log = ""
   var p1 = new MyPromise(function(resolve, reject) { resolve(1) })
   var p2 = new MyPromise(function(resolve, reject) { reject(2) })
   var d3 = MyPromise.deferred()
+  assert(d3.promise instanceof MyPromise, "subclass/instance3")
+  assert(log === "nx1nr2dn", "subclass/create")
+
+  log = ""
   var p4 = MyPromise.resolved(4)
-  var p5 = MyPromise.resolved(5)
+  var p5 = MyPromise.rejected(5)
+  assert(p4 instanceof MyPromise, "subclass/instance4")
+  assert(p5 instanceof MyPromise, "subclass/instance5")
   d3.resolve(3)
-  assert(log === "nx1nr2nnx4nx5x3", "subclass/create")
+  assert(log === "nx4nr5x3", "subclass/resolve")
+
+  log = ""
+  var d6 = MyPromise.deferred()
+  d6.promise.when(function(x) { return new Promise(x) }).when(function() {})
+  d6.resolve(6)
+  assert(log === "dnwnwnx6", "subclass/when")
+
   log = ""
   Promise.all([11, Promise.resolved(12), MyPromise.resolved(13)])
-  assert(log === "nx13", "subclass/all/arg")
+  assert(log === "nx13wn", "subclass/all/arg")
+
   log = ""
   MyPromise.all([21, Promise.resolved(22), MyPromise.resolved(23)])
-  assert(log === "nx23nnx21", "subclass/all/self")
+  assert(log === "nx23dnnx21wnwn", "subclass/all/self")
 })()
