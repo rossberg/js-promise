@@ -1,281 +1,409 @@
 function assert(b, s) { print(s + (b ? " ok" : " failed")) }
 function unreachable(x) { assert(false, "unreachable(" + x + ")") }
 
-
 var test = (function() {
-  var p1 = Promise.resolve(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
-  p3.when(function(x) { assert(x === p2, "resolve/when") }, unreachable)
+  var p1 = Promise.resolved(5)
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
+  p3.when(function(x) { assert(x === p2, "resolved/when") }, unreachable)
 })()
 
 var test = (function() {
-  var p1 = Promise.resolve(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
-  p3.then(function(x) { assert(x === 5, "resolve/then") }, unreachable)
+  var p1 = Promise.resolved(5)
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
+  p3.then(function(x) { assert(x === 5, "resolved/then") }, unreachable)
 })()
 
 var test = (function() {
-  var p1 = Promise.reject(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
-  p3.when(function(x) { assert(x === p2, "reject/when") }, unreachable)
+  var p1 = Promise.rejected(5)
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
+  p3.when(function(x) { assert(x === p2, "rejected/when") }, unreachable)
 })()
 
 var test = (function() {
-  var p1 = Promise.reject(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
-  p3.then(unreachable, function(x) { assert(x === 5, "reject/then") })
+  var p1 = Promise.rejected(5)
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
+  p3.then(unreachable, function(x) { assert(x === 5, "rejected/then") })
 })()
 
 var test = (function() {
-  var p1 = Promise.resolve(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
+  var p1 = Promise.resolved(5)
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
   p3.when(function(x) { return x }, unreachable)
-    .when(function(x) { assert(x === p1, "resolve/when/when") }, unreachable)
+    .when(function(x) { assert(x === p1, "resolved/when/when") }, unreachable)
 })()
 
 var test = (function() {
-  var p1 = Promise.resolve(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
+  var p1 = Promise.resolved(5)
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
   p3.when(function(x) { return x }, unreachable)
-    .then(function(x) { assert(x === 5, "resolve/when/then") }, unreachable)
+    .then(function(x) { assert(x === 5, "resolved/when/then") }, unreachable)
 })()
 
 var test = (function() {
-  var p1 = Promise.resolve(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
+  var p1 = Promise.resolved(5)
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
   p3.when(function(x) { return 6 }, unreachable)
-    .when(function(x) { assert(x === 6, "resolve/when/when2") }, unreachable)
+    .when(function(x) { assert(x === 6, "resolved/when/when2") }, unreachable)
 })()
 
 var test = (function() {
-  var p1 = Promise.resolve(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
+  var p1 = Promise.resolved(5)
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
   p3.when(function(x) { return 6 }, unreachable)
-    .then(function(x) { assert(x === 6, "resolve/when/then2") }, unreachable)
+    .then(function(x) { assert(x === 6, "resolved/when/then2") }, unreachable)
 })()
 
 var test = (function() {
-  var p1 = Promise.resolve(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
+  var p1 = Promise.resolved(5)
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
   p3.then(function(x) { return x + 1 }, unreachable)
-    .when(function(x) { assert(x === 6, "resolve/then/when") }, unreachable)
+    .when(function(x) { assert(x === 6, "resolved/then/when") }, unreachable)
 })()
 
 var test = (function() {
-  var p1 = Promise.resolve(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
+  var p1 = Promise.resolved(5)
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
   p3.then(function(x) { return x + 1 }, unreachable)
-    .then(function(x) { assert(x === 6, "resolve/then/then") }, unreachable)
+    .then(function(x) { assert(x === 6, "resolved/then/then") }, unreachable)
 })()
 
 var test = (function() {
-  var p1 = Promise.resolve(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
-  p3.then(function(x) { return Promise.resolve(x + 1) }, unreachable)
-    .when(function(x) { assert(x === 6, "resolve/then/when2") }, unreachable)
+  var p1 = Promise.resolved(5)
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
+  p3.then(function(x) { return Promise.resolved(x + 1) }, unreachable)
+    .when(function(x) { assert(x === 6, "resolved/then/when2") }, unreachable)
 })()
 
 var test = (function() {
-  var p1 = Promise.resolve(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
-  p3.then(function(x) { return Promise.resolve(x + 1) }, unreachable)
-    .then(function(x) { assert(x === 6, "resolve/then/then2") }, unreachable)
+  var p1 = Promise.resolved(5)
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
+  p3.then(function(x) { return Promise.resolved(x + 1) }, unreachable)
+    .then(function(x) { assert(x === 6, "resolved/then/then2") }, unreachable)
 })()
 
 var test = (function() {
-  var p1 = Promise.resolve(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
+  var p1 = Promise.resolved(5)
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
   p3.when(function(x) { throw 6 }, unreachable)
-    .when(unreachable, function(x) { assert(x === 6, "resolve/when-throw/when") })
+    .when(unreachable, function(x) { assert(x === 6, "resolved/when-throw/when") })
 })()
 
 var test = (function() {
-  var p1 = Promise.resolve(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
+  var p1 = Promise.resolved(5)
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
   p3.when(function(x) { throw 6 }, unreachable)
-    .then(unreachable, function(x) { assert(x === 6, "resolve/when-throw/then") })
+    .then(unreachable, function(x) { assert(x === 6, "resolved/when-throw/then") })
 })()
 
 var test = (function() {
-  var p1 = Promise.resolve(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
+  var p1 = Promise.resolved(5)
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
   p3.then(function(x) { throw 6 }, unreachable)
-    .when(unreachable, function(x) { assert(x === 6, "resolve/then-throw/when") })
+    .when(unreachable, function(x) { assert(x === 6, "resolved/then-throw/when") })
 })()
 
 var test = (function() {
-  var p1 = Promise.resolve(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
+  var p1 = Promise.resolved(5)
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
   p3.then(function(x) { throw 6 }, unreachable)
-    .then(unreachable, function(x) { assert(x === 6, "resolve/then-throw/then") })
+    .then(unreachable, function(x) { assert(x === 6, "resolved/then-throw/then") })
 })()
 
 var test = (function() {
-  var p1 = Promise.resolve(5)
+  var p1 = Promise.resolved(5)
   var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var p3 = Promise.resolve(p2)
-  p3.when(function(x) { assert(x === p2, "resolve/thenable/when") }, unreachable)
+  var p3 = Promise.resolved(p2)
+  p3.when(function(x) { assert(x === p2, "resolved/thenable/when") }, unreachable)
 })()
 
 var test = (function() {
-  var p1 = Promise.resolve(5)
+  var p1 = Promise.resolved(5)
   var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var p3 = Promise.resolve(p2)
-  p3.then(function(x) { assert(x === 5, "resolve/thenable/then") }, unreachable)
+  var p3 = Promise.resolved(p2)
+  p3.then(function(x) { assert(x === 5, "resolved/thenable/then") }, unreachable)
 })()
 
 var test = (function() {
-  var p1 = Promise.reject(5)
+  var p1 = Promise.rejected(5)
   var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var p3 = Promise.resolve(p2)
-  p3.when(function(x) { assert(x === p2, "reject/thenable/when") }, unreachable)
+  var p3 = Promise.resolved(p2)
+  p3.when(function(x) { assert(x === p2, "rejected/thenable/when") }, unreachable)
 })()
 
 var test = (function() {
-  var p1 = Promise.reject(5)
+  var p1 = Promise.rejected(5)
   var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var p3 = Promise.resolve(p2)
-  p3.then(unreachable, function(x) { assert(x === 5, "reject/thenable/then") })
+  var p3 = Promise.resolved(p2)
+  p3.then(unreachable, function(x) { assert(x === 5, "rejected/thenable/then") })
 })()
 
 var test = (function() {
-  var resolve, reject
-  var p1 = new Promise(function(res, rej) { resolve = res; reject = rej })
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
+  var deferred = Promise.deferred()
+  var p1 = deferred.promise
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
   p3.when(function(x) { assert(x === p2, "when/resolve") }, unreachable)
-  resolve(5)
+  deferred.resolve(5)
 })()
 
 var test = (function() {
-  var resolve, reject
-  var p1 = new Promise(function(res, rej) { resolve = res; reject = rej })
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
+  var deferred = Promise.deferred()
+  var p1 = deferred.promise
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
   p3.then(function(x) { assert(x === 5, "then/resolve") }, unreachable)
-  resolve(5)
+  deferred.resolve(5)
 })()
 
 var test = (function() {
-  var resolve, reject
-  var p1 = new Promise(function(res, rej) { resolve = res; reject = rej })
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
+  var deferred = Promise.deferred()
+  var p1 = deferred.promise
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
   p3.when(function(x) { assert(x === p2, "when/reject") }, unreachable)
-  reject(5)
+  deferred.reject(5)
 })()
 
 var test = (function() {
-  var resolve, reject
-  var p1 = new Promise(function(res, rej) { resolve = res; reject = rej })
-  var p2 = Promise.resolve(p1)
-  var p3 = Promise.resolve(p2)
+  var deferred = Promise.deferred()
+  var p1 = deferred.promise
+  var p2 = Promise.resolved(p1)
+  var p3 = Promise.resolved(p2)
   p3.then(unreachable, function(x) { assert(x === 5, "then/reject") })
-  reject(5)
+  deferred.reject(5)
 })()
 
 var test = (function() {
-  var resolve, reject
-  var p1 = new Promise(function(res, rej) { resolve = res; reject = rej })
+  var deferred = Promise.deferred()
+  var p1 = deferred.promise
   var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var p3 = Promise.resolve(p2)
+  var p3 = Promise.resolved(p2)
   p3.when(function(x) { assert(x === p2, "when/resolve/thenable") }, unreachable)
-  resolve(5)
+  deferred.resolve(5)
 })()
 
 var test = (function() {
-  var resolve, reject
-  var p1 = new Promise(function(res, rej) { resolve = res; reject = rej })
+  var deferred = Promise.deferred()
+  var p1 = deferred.promise
   var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var p3 = Promise.resolve(p2)
+  var p3 = Promise.resolved(p2)
   p3.then(function(x) { assert(x === 5, "then/resolve/thenable") }, unreachable)
-  resolve(5)
+  deferred.resolve(5)
 })()
 
 var test = (function() {
-  var resolve, reject
-  var p1 = new Promise(function(res, rej) { resolve = res; reject = rej })
+  var deferred = Promise.deferred()
+  var p1 = deferred.promise
   var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var p3 = Promise.resolve(p2)
+  var p3 = Promise.resolved(p2)
   p3.when(function(x) { assert(x === p2, "when/reject/thenable") }, unreachable)
-  reject(5)
+  deferred.reject(5)
 })()
 
 var test = (function() {
-  var resolve, reject
-  var p1 = new Promise(function(res, rej) { resolve = res; reject = rej })
+  var deferred = Promise.deferred()
+  var p1 = deferred.promise
   var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var p3 = Promise.resolve(p2)
+  var p3 = Promise.resolved(p2)
   p3.then(unreachable, function(x) { assert(x === 5, "then/reject/thenable") })
-  reject(5)
+  deferred.reject(5)
 })()
 
 var test = (function() {
-  var resolve, reject
-  var p1 = Promise.resolve(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = new Promise(function(res, rej) { resolve = res; reject = rej })
+  var p1 = Promise.resolved(5)
+  var p2 = Promise.resolved(p1)
+  var deferred = Promise.deferred()
+  var p3 = deferred.promise
   p3.when(function(x) { assert(x === p2, "when/resolve2") }, unreachable)
-  resolve(p2)
+  deferred.resolve(p2)
 })()
 
 var test = (function() {
-  var resolve, reject
-  var p1 = Promise.resolve(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = new Promise(function(res, rej) { resolve = res; reject = rej })
+  var p1 = Promise.resolved(5)
+  var p2 = Promise.resolved(p1)
+  var deferred = Promise.deferred()
+  var p3 = deferred.promise
   p3.then(function(x) { assert(x === 5, "then/resolve2") }, unreachable)
-  resolve(p2)
+  deferred.resolve(p2)
 })()
 
 var test = (function() {
-  var resolve, reject
-  var p1 = Promise.resolve(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = new Promise(function(res, rej) { resolve = res; reject = rej })
+  var p1 = Promise.resolved(5)
+  var p2 = Promise.resolved(p1)
+  var deferred = Promise.deferred()
+  var p3 = deferred.promise
   p3.when(unreachable, function(x) { assert(x === 5, "when/reject2") })
-  reject(5)
+  deferred.reject(5)
 })()
 
 var test = (function() {
-  var resolve, reject
-  var p1 = Promise.resolve(5)
-  var p2 = Promise.resolve(p1)
-  var p3 = new Promise(function(res, rej) { resolve = res; reject = rej })
+  var p1 = Promise.resolved(5)
+  var p2 = Promise.resolved(p1)
+  var deferred = Promise.deferred()
+  var p3 = deferred.promise
   p3.then(unreachable, function(x) { assert(x === 5, "then/reject2") })
-  reject(5)
+  deferred.reject(5)
 })()
 
 var test = (function() {
-  var resolve, reject
-  var p1 = Promise.resolve(5)
+  var p1 = Promise.resolved(5)
   var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var p3 = new Promise(function(res, rej) { resolve = res; reject = rej })
+  var deferred = Promise.deferred()
+  var p3 = deferred.promise
   p3.when(function(x) { assert(x === p2, "when/resolve/thenable2") }, unreachable)
-  resolve(p2)
+  deferred.resolve(p2)
 })()
 
 var test = (function() {
-  var resolve, reject
-  var p1 = Promise.resolve(5)
+  var p1 = Promise.resolved(5)
   var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var p3 = new Promise(function(res, rej) { resolve = res; reject = rej })
+  var deferred = Promise.deferred()
+  var p3 = deferred.promise
   p3.then(function(x) { assert(x === 5, "then/resolve/thenable2") }, unreachable)
-  resolve(p2)
+  deferred.resolve(p2)
+})()
+
+var test = (function() {
+  var deferred1 = Promise.deferred()
+  var p1 = deferred1.promise
+  var deferred2 = Promise.deferred()
+  var p2 = deferred2.promise
+  var deferred3 = Promise.deferred()
+  var p3 = deferred3.promise
+  Promise.all([p1, p2, p3]).when(function(x) { assert(x === undefined, "all/resolve") }, unreachable)
+  deferred1.resolve(1)
+  deferred3.resolve(3)
+  deferred2.resolve(2)
+})()
+
+var test = (function() {
+  var deferred = Promise.deferred()
+  var p1 = deferred.promise
+  var p2 = Promise.resolved(2)
+  var p3 = Promise.deferred().promise
+  Promise.all([p1, p2, p3]).when(unreachable, unreachable)
+  deferred.resolve(1)
+})()
+
+var test = (function() {
+  var deferred1 = Promise.deferred()
+  var p1 = deferred1.promise
+  var deferred2 = Promise.deferred()
+  var p2 = deferred2.promise
+  var deferred3 = Promise.deferred()
+  var p3 = deferred3.promise
+  Promise.all([p1, p2, p3]).when(unreachable, function(x) { assert(x === 2, "all/reject") })
+  deferred1.resolve(1)
+  deferred3.resolve(3)
+  deferred2.reject(2)
+})()
+
+var test = (function() {
+  var p1 = Promise.resolved(1)
+  var p2 = Promise.resolved(2)
+  var p3 = Promise.resolved(3)
+  Promise.one([p1, p2, p3]).when(function(x) { assert(x === 1, "resolved/all") }, unreachable)
+})()
+
+var test = (function() {
+  var p1 = Promise.resolved(1)
+  var p2 = Promise.resolved(2)
+  var p3 = Promise.resolved(3)
+  Promise.one([0, p1, p2, p3]).when(function(x) { assert(x === 0, "resolved-const/all") }, unreachable)
+})()
+
+var test = (function() {
+  var deferred1 = Promise.deferred()
+  var p1 = deferred1.promise
+  var deferred2 = Promise.deferred()
+  var p2 = deferred2.promise
+  var deferred3 = Promise.deferred()
+  var p3 = deferred3.promise
+  Promise.one([p1, p2, p3]).when(function(x) { assert(x === 3, "one/resolve") }, unreachable)
+  deferred3.resolve(3)
+  deferred1.resolve(1)
+})()
+
+var test = (function() {
+  var deferred = Promise.deferred()
+  var p1 = deferred.promise
+  var p2 = Promise.resolved(2)
+  var p3 = Promise.deferred().promise
+  Promise.one([p1, p2, p3]).when(function(x) { assert(x === 2, "resolved/one") }, unreachable)
+  deferred.resolve(1)
+})()
+
+var test = (function() {
+  var deferred1 = Promise.deferred()
+  var p1 = deferred1.promise
+  var deferred2 = Promise.deferred()
+  var p2 = deferred2.promise
+  var deferred3 = Promise.deferred()
+  var p3 = deferred3.promise
+  Promise.one([p1, p2, p3]).when(function(x) { assert(x === 3, "one/resolve/reject") }, unreachable)
+  deferred3.resolve(3)
+  deferred1.reject(1)
+})()
+
+var test = (function() {
+  var deferred1 = Promise.deferred()
+  var p1 = deferred1.promise
+  var deferred2 = Promise.deferred()
+  var p2 = deferred2.promise
+  var deferred3 = Promise.deferred()
+  var p3 = deferred3.promise
+  Promise.one([p1, p2, p3]).when(unreachable, function(x) { assert(x === 3, "one/reject/resolve") })
+  deferred3.reject(3)
+  deferred1.resolve(1)
+})()
+
+var test = (function() {
+  var log
+  function MyPromise(resolver) {
+    log += "n"
+    Promise.call(this,
+      function(resolve, reject) {
+        resolver(
+          function(x) { log += "x" + x; resolve(x) },
+          function(r) { log += "r" + r; reject(r) }
+        )
+      }
+    )
+  }
+  MyPromise.__proto__ = Promise
+  MyPromise.prototype = {
+    __proto__: Promise.prototype,
+    deferred: function() { log += "d"; return deferred() } 
+  }
+
+  log = ""
+  var p1 = new MyPromise(function(resolve, reject) { resolve(1) })
+  var p2 = new MyPromise(function(resolve, reject) { reject(2) })
+  var d3 = MyPromise.deferred()
+  var p4 = MyPromise.resolved(4)
+  var p5 = MyPromise.resolved(5)
+  d3.resolve(3)
+  assert(log === "nx1nr2nnx4nx5x3", "subclass/create")
+  log = ""
+  Promise.all([11, Promise.resolved(12), MyPromise.resolved(13)])
+  assert(log === "nx13", "subclass/all/arg")
+  log = ""
+  MyPromise.all([21, Promise.resolved(22), MyPromise.resolved(23)])
+  assert(log === "nx23nnx21", "subclass/all/self")
 })()
