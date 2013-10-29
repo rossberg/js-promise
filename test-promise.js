@@ -1,5 +1,33 @@
-function assert(b, s) { print(s + (b ? " ok" : " failed")) }
+function assert(b, s) { print(s + (b ? " ok" : " FAILED")) }
 function unreachable(x) { assert(false, "unreachable(" + x + ")") }
+
+var test = (function() {
+  Promise.resolved(5).when(undefined, unreachable).when(
+    function(x) { assert(x === undefined, "resolved/when-nohandler") },
+    unreachable
+  )
+})()
+
+var test = (function() {
+  Promise.rejected(5).when(unreachable, undefined).when(
+    function(x) { assert(x === undefined, "rejected/when-nohandler") },
+    unreachable
+  )
+})()
+
+var test = (function() {
+  Promise.resolved(5).then(undefined, unreachable).when(
+    function(x) { assert(x === undefined, "resolved/then-nohandler") },
+    unreachable
+  )
+})()
+
+var test = (function() {
+  Promise.rejected(5).then(unreachable, undefined).when(
+    function(x) { assert(x === undefined, "rejected/then-nohandler") },
+    unreachable
+  )
+})()
 
 var test = (function() {
   var p1 = Promise.resolved(5)
@@ -421,10 +449,10 @@ var test = (function() {
   assert(log === "dnwnwnx6", "subclass/when")
 
   log = ""
-  Promise.all([11, Promise.resolved(12), MyPromise.resolved(13)])
-  assert(log === "nx13wn", "subclass/all/arg")
+  Promise.all([11, Promise.resolved(12), 13, MyPromise.resolved(14), 15, 16])
+  assert(log === "nx14wn", "subclass/all/arg")
 
   log = ""
-  MyPromise.all([21, Promise.resolved(22), MyPromise.resolved(23)])
-  assert(log === "nx23dnnx21wnwn", "subclass/all/self")
+  MyPromise.all([21, Promise.resolved(22), 23, MyPromise.resolved(24), 25, 26])
+  assert(log === "nx24dnnx21wndnwnnx23wnwnnx25wnnx26wn", "subclass/all/self")
 })()
