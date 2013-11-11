@@ -308,6 +308,35 @@ var test = (function() {
 })()
 
 var test = (function() {
+  var p1 = Promise.resolved(0)
+  var p2 = p1.when(function(x) { return p2 }, unreachable)
+  p2.when(unreachable,
+    function(r) { assert(r instanceof TypeError, "cyclic/when") })
+})()
+
+var test = (function() {
+  var p1 = Promise.resolved(0)
+  var p2 = p1.then(function(x) { return p2 }, unreachable)
+  p2.when(unreachable,
+    function(r) { assert(r instanceof TypeError, "cyclic/then") })
+})()
+
+var test = (function() {
+  var deferred = Promise.deferred()
+  var p = deferred.promise
+  deferred.resolve(p)
+  p.when(function(x) { assert(x === p, "cyclic/deferred/when") }, unreachable)
+})()
+
+var test = (function() {
+  var deferred = Promise.deferred()
+  var p = deferred.promise
+  deferred.resolve(p)
+  p.then(unreachable,
+    function(r) { assert(r instanceof TypeError, "cyclic/deferred/then") })
+})()
+
+var test = (function() {
   var deferred1 = Promise.deferred()
   var p1 = deferred1.promise
   var deferred2 = Promise.deferred()
