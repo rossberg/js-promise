@@ -98,8 +98,6 @@ Promise.prototype.when = function(onResolve, onReject) {
     case 'rejected':
       PromiseQueue([PromiseChain(deferred, onReject)], this[$$value])
       break
-    default:
-      unreachable()
   }
   return deferred.promise
 }
