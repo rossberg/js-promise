@@ -84,39 +84,42 @@ Promise.deferred = function() {  // Seems useful to expose as a method, too
 Promise.prototype.when = function(onResolve, onReject) {
   onResolve = onResolve || function() {}
   onReject = onReject || function() {}
-  var that = this
-  return new this.constructor(function(resolve, reject) {
-    switch (that[$$status]) {
-      case undefined:
-        throw TypeError
-      case 'pending':
-        that[$$onResolve].push(PromiseChain(resolve, reject, onResolve))
-        that[$$onReject].push(PromiseChain(resolve, reject, onReject))
-        break
-      case 'resolved':
-        PromiseQueue([PromiseChain(resolve, reject, onResolve)], that[$$value])
-        break
-      case 'rejected':
-        PromiseQueue([PromiseChain(resolve, reject, onReject)], that[$$value])
-        break
-    }
-  })
+  var deferred = Promise.deferred.call(this.constructor)
+  switch (this[$$status]) {
+    case undefined:
+      throw TypeError
+    case 'pending':
+      this[$$onResolve].push(PromiseChain(deferred, onResolve))
+      this[$$onReject].push(PromiseChain(deferred, onReject))
+      break
+    case 'resolved':
+      PromiseQueue([PromiseChain(deferred, onResolve)], this[$$value])
+      break
+    case 'rejected':
+      PromiseQueue([PromiseChain(deferred, onReject)], this[$$value])
+      break
+    default:
+      unreachable()
+  }
+  return deferred.promise
 }
 
 Promise.prototype.catch = function(onReject) {
   return this.when(undefined, onReject)
 }
 
-function PromiseChain(resolve, reject, handler) {
+function PromiseChain(deferred, handler) {
   return function(x) {
     try {
       var y = handler(x)
-      if (IsPromise(y))
-        y.when(resolve, reject)
+      if (y === deferred.promise)
+        throw new TypeError
+      else if (IsPromise(y))
+        y.when(deferred.resolve, deferred.reject)
       else
-        resolve(y)
+        deferred.resolve(y)
     } catch(e) {
-      reject(e)
+      deferred.reject(e)
     }
   }
 }
@@ -126,10 +129,13 @@ function PromiseChain(resolve, reject, handler) {
 
 Promise.prototype.then = function(onResolve, onReject) {
   onResolve = onResolve || function() {}
+  var that = this
+  var constructor = this.constructor
   return this.when(
     function(x) {
-      x = PromiseCoerce(x)
-      return IsPromise(x) ? x.then(onResolve, onReject) : onResolve(x)
+      x = PromiseCoerce(constructor, x)
+      return x === that ? onReject(new TypeError) :
+             IsPromise(x) ? x.then(onResolve, onReject) : onResolve(x)
     },
     onReject
   )
