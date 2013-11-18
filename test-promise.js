@@ -343,7 +343,13 @@ var test = (function() {
   var p2 = deferred2.promise
   var deferred3 = Promise.deferred()
   var p3 = deferred3.promise
-  Promise.all([p1, p2, p3]).when(function(x) { assert(x === undefined, "all/resolve") }, unreachable)
+  Promise.all([p1, p2, p3]).when(
+    function(x) {
+      assert(x.length === 3, "all/resolve")
+      assert(x[0] === 1, "all/resolve/0")
+      assert(x[1] === 2, "all/resolve/1")
+      assert(x[2] === 3, "all/resolve/2")
+    }, unreachable)
   deferred1.resolve(1)
   deferred3.resolve(3)
   deferred2.resolve(2)
