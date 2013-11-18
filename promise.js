@@ -179,18 +179,20 @@ Promise.cast = function(x) {
 Promise.all = function(values) {
   var deferred = this.deferred()
   var count = 0
+  var resolutions = []
   for (var i in values) {
     ++count
     this.cast(values[i]).when(
       function(i, x) {
         resolutions[i] = x;
         if (--count === 0) deferred.resolve(resolutions);
-      }.bind(UNDEFINED, i),
+      }.bind(undefined, i),
       function(r) {
         if (count > 0) { count = 0; deferred.reject(r) }
       }
     )
   }
+  if (count === 0) deferred.resolve(resolutions)
   return deferred.promise
 }
 
