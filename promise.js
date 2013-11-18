@@ -182,14 +182,19 @@ Promise.all = function(values) {
   for (var i in values) {
     ++count
     this.cast(values[i]).when(
-      function(x) { if (--count === 0) deferred.resolve(undefined) },
-      function(r) { if (count > 0) { count = 0; deferred.reject(r) } }
+      function(i, x) {
+        resolutions[i] = x;
+        if (--count === 0) deferred.resolve(resolutions);
+      }.bind(UNDEFINED, i),
+      function(r) {
+        if (count > 0) { count = 0; deferred.reject(r) }
+      }
     )
   }
   return deferred.promise
 }
 
-Promise.one = function(values) {
+Promise.one = function(values) {  // a.k.a. Promise.race
   var deferred = this.deferred()
   var done = false
   for (var i in values) {
