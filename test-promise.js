@@ -337,6 +337,14 @@ var test = (function() {
 })()
 
 var test = (function() {
+  Promise.all([]).when(
+    function(x) { assertAsync(x.length === 0, "all/resolve/empty") },
+    assertUnreachable
+  )
+  assertAsyncRan()
+})()
+
+var test = (function() {
   var deferred1 = Promise.deferred()
   var p1 = deferred1.promise
   var deferred2 = Promise.deferred()
@@ -375,6 +383,13 @@ var test = (function() {
   deferred1.resolve(1)
   deferred3.resolve(3)
   deferred2.reject(2)
+})()
+
+var test = (function() {
+  Promise.one([]).when(
+    assertUnreachable,
+    assertUnreachable
+  )
 })()
 
 var test = (function() {
