@@ -81,7 +81,7 @@ Promise.deferred = function() {  // Seems useful to expose as a method, too
 
 // Simple chaining (a.k.a. flatMap).
 
-Promise.prototype.when = function(onResolve, onReject) {
+Promise.prototype.chain = function(onResolve, onReject) {
   onResolve = onResolve || function() {}
   onReject = onReject || function() {}
   var deferred = Promise.deferred.call(this.constructor)
@@ -103,7 +103,7 @@ Promise.prototype.when = function(onResolve, onReject) {
 }
 
 Promise.prototype.catch = function(onReject) {
-  return this.when(undefined, onReject)
+  return this.chain(undefined, onReject)
 }
 
 function PromiseChain(deferred, handler) {
@@ -113,7 +113,7 @@ function PromiseChain(deferred, handler) {
       if (y === deferred.promise)
         throw new TypeError
       else if (IsPromise(y))
-        y.when(deferred.resolve, deferred.reject)
+        y.chain(deferred.resolve, deferred.reject)
       else
         deferred.resolve(y)
     } catch(e) {
@@ -129,7 +129,7 @@ Promise.prototype.then = function(onResolve, onReject) {
   onResolve = onResolve || function() {}
   var that = this
   var constructor = this.constructor
-  return this.when(
+  return this.chain(
     function(x) {
       x = PromiseCoerce(constructor, x)
       return x === that ? onReject(new TypeError) :
@@ -169,7 +169,7 @@ Promise.cast = function(x) {
   if (x instanceof this) return x
   if (IsPromise(x)) {
     var result = this.deferred()
-    x.when(result.resolve, result.reject)
+    x.chain(result.resolve, result.reject)
     return result.promise
   }
   return this.resolved(x)
@@ -182,7 +182,7 @@ Promise.all = function(values) {
   var resolutions = []
   for (var i in values) {
     ++count
-    this.cast(values[i]).when(
+    this.cast(values[i]).chain(
       function(i, x) {
         resolutions[i] = x;
         if (--count === 0) deferred.resolve(resolutions);
@@ -200,7 +200,7 @@ Promise.one = function(values) {  // a.k.a. Promise.race
   var deferred = this.deferred()
   var done = false
   for (var i in values) {
-    this.cast(values[i]).when(
+    this.cast(values[i]).chain(
       function(x) { if (!done) { done = true; deferred.resolve(x) } },
       function(r) { if (!done) { done = true; deferred.reject(r) } }
     )
