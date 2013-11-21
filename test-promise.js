@@ -3,29 +3,29 @@ function unreachable(x) { assert(false, "unreachable(" + x + ")") }
 
 var test = (function() {
   Promise.resolved(5).chain(undefined, unreachable).chain(
-    function(x) { assert(x === undefined, "resolved/chain-nohandler") },
+    function(x) { assert(x === 5, "resolved/chain-nohandler") },
     unreachable
   )
 })()
 
 var test = (function() {
   Promise.rejected(5).chain(unreachable, undefined).chain(
-    function(x) { assert(x === undefined, "rejected/chain-nohandler") },
-    unreachable
+    unreachable,
+    function(r) { assert(r === 5, "rejected/chain-nohandler") }
   )
 })()
 
 var test = (function() {
   Promise.resolved(5).then(undefined, unreachable).chain(
-    function(x) { assert(x === undefined, "resolved/chain-nohandler") },
+    function(x) { assert(x === 5, "resolved/then-nohandler") },
     unreachable
   )
 })()
 
 var test = (function() {
   Promise.rejected(5).then(unreachable, undefined).chain(
-    function(x) { assert(x === undefined, "rejected/then-nohandler") },
-    unreachable
+    unreachable,
+    function(r) { assert(r === 5, "rejected/then-nohandler") }
   )
 })()
 
@@ -338,10 +338,9 @@ var test = (function() {
 
 var test = (function() {
   Promise.all([]).chain(
-    function(x) { assertAsync(x.length === 0, "all/resolve/empty") },
-    assertUnreachable
+    function(x) { assert(x.length === 0, "all/resolve/empty") },
+    unreachable
   )
-  assertAsyncRan()
 })()
 
 var test = (function() {
@@ -386,10 +385,7 @@ var test = (function() {
 })()
 
 var test = (function() {
-  Promise.one([]).chain(
-    assertUnreachable,
-    assertUnreachable
-  )
+  Promise.one([]).chain(unreachable, unreachable)
 })()
 
 var test = (function() {
