@@ -141,14 +141,14 @@ Promise.prototype.then = function(onResolve, onReject) {
 
 var thenables = new WeakMap
 
-function PromiseCoerce(x) {
+function PromiseCoerce(constructor, x) {
   if (IsPromise(x)) {
     return x
-  } else if (x && 'then' in Object(x)) {
+  } else if (x && 'then' in Object(x)) {  // can't test for callable
     if (thenables.has(x)) {
       return thenables.get(x)
     } else {
-      var deferred = this.constructor.deferred()
+      var deferred = constructor.deferred()
       thenables.set(x, deferred.promise)
       try {
         x.then(deferred.resolve, deferred.reject)
