@@ -82,8 +82,8 @@ Promise.deferred = function() {  // Seems useful to expose as a method, too
 // Simple chaining (a.k.a. flatMap).
 
 Promise.prototype.chain = function(onResolve, onReject) {
-  onResolve = onResolve || function() {}
-  onReject = onReject || function() {}
+  onResolve = onResolve || function(x) { return x }
+  onReject = onReject || function(e) { throw e }
   var deferred = Promise.deferred.call(this.constructor)
   switch (this[$$status]) {
     case undefined:
@@ -126,7 +126,7 @@ function PromiseChain(deferred, handler) {
 // Extended functionality for multi-unwrapping chaining and coercive 'then'.
 
 Promise.prototype.then = function(onResolve, onReject) {
-  onResolve = onResolve || function() {}
+  onResolve = onResolve || function(x) { return x }
   var that = this
   var constructor = this.constructor
   return this.chain(
