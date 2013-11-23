@@ -37,25 +37,35 @@ function Promise(resolver) {
 }
 
 function PromiseResolve(promise, x) {
-  if (promise[$$status] !== 'pending') throw TypeError
-  PromiseQueue(promise[$$onResolve], x)
-  promise[$$value] = x
-  promise[$$onResolve] = promise[$$onReject] = undefined
-  promise[$$status] = 'resolved'
+  PromiseDone(promise, 'resolved', x, promise[$$onResolve])
 }
 
 function PromiseReject(promise, r) {
-  if (promise[$$status] !== 'pending') throw TypeError
-  PromiseQueue(promise[$$onReject], r)
-  promise[$$value] = r
-  promise[$$onResolve] = promise[$$onReject] = undefined
-  promise[$$status] = 'rejected'
+  PromiseDone(promise, 'rejected', r, promise[$$onReject])
 }
 
-function PromiseQueue(tasks, x) {
-  for (var i in tasks) {
-    Task(function() { tasks[i](x) })
-  }
+function PromiseDone(promise, status, value, reactions) {
+  if (promise[$$status] !== 'pending') return
+  for (var i in reactions) PromiseReact(reactions[i][0], reactions[i][1], value)
+  promise[$$status] = status
+  promise[$$value] = value
+  promise[$$onResolve] = promise[$$onReject] = undefined
+}
+
+function PromiseReact(deferred, handler, x) {
+  Task(function() {
+    try {
+      var y = handler(x)
+      if (y === deferred.promise)
+        throw new TypeError
+      else if (IsPromise(y))
+        y.chain(deferred.resolve, deferred.reject)
+      else
+        deferred.resolve(y)
+    } catch(e) {
+      deferred.reject(e)
+    }
+  })
 }
 
 
@@ -89,14 +99,14 @@ Promise.prototype.chain = function(onResolve, onReject) {
     case undefined:
       throw TypeError
     case 'pending':
-      this[$$onResolve].push(PromiseChain(deferred, onResolve))
-      this[$$onReject].push(PromiseChain(deferred, onReject))
+      this[$$onResolve].push([deferred, onResolve])
+      this[$$onReject].push([deferred, onReject])
       break
     case 'resolved':
-      PromiseQueue([PromiseChain(deferred, onResolve)], this[$$value])
+      PromiseReact(deferred, onResolve, this[$$value])
       break
     case 'rejected':
-      PromiseQueue([PromiseChain(deferred, onReject)], this[$$value])
+      PromiseReact(deferred, onReject, this[$$value])
       break
   }
   return deferred.promise
@@ -104,22 +114,6 @@ Promise.prototype.chain = function(onResolve, onReject) {
 
 Promise.prototype.catch = function(onReject) {
   return this.chain(undefined, onReject)
-}
-
-function PromiseChain(deferred, handler) {
-  return function(x) {
-    try {
-      var y = handler(x)
-      if (y === deferred.promise)
-        throw new TypeError
-      else if (IsPromise(y))
-        y.chain(deferred.resolve, deferred.reject)
-      else
-        deferred.resolve(y)
-    } catch(e) {
-      deferred.reject(e)
-    }
-  }
 }
 
 
